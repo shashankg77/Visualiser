@@ -1,0 +1,224 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		<title>SOLID</title>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		
+		<script type='text/javascript' src='lib/jquery.js'></script>
+		<script type='text/javascript' src='lib/jquery-ui.js'></script>
+		<script type='text/javascript' src='lib/jquery.color.js'></script>
+		<script type="text/javascript" src="lib/jquery.flot.js"></script>
+		<script type="text/javascript" src="lib/jquery.flot.resize.js"></script>
+        <script type="text/javascript" src="lib/jquery.selectbox-0.2.min.js"></script>
+		<script type="text/javascript" src="js/tab.js"></script>
+		<script type="text/javascript" src="js/chartcreator.js"></script>
+		<script type="text/javascript" src="js/heatmap.js"></script>
+		<script type="text/javascript" src="webvis.js"></script>
+		<link href='css/style.css' rel='stylesheet' type='text/css' />
+		<link href='css/heatmap.css' rel='stylesheet' type='text/css' />
+        <link href='css/jquery.selectbox.css' rel='stylesheet' type='text/css' />
+        <link href='css/jquery.slider.css' rel='stylesheet' type='text/css' />
+	</head>
+	
+	<body>
+		<div class='content'>			   
+			<div class='tabbed_content'>
+				<div class='tabs'>
+					<div class='moving_bg'>
+						&nbsp;
+					</div>					
+					<span class='tab_item' id='tab_topology'>
+						Topologie
+					</span>
+					<span class='tab_item' id='tab_spestats'>
+						Sicherheitsbeziehungen
+					</span>
+					<span class='tab_item' id='tab_traffic'>
+						Netzwerkauslastung
+					</span>
+					<span class='tab_item' id='tab_health'>
+						Testbed Health
+					</span>
+					<span class='tab_item' id='tab_quality'>
+						Verbindungsqualität
+					</span>
+					<span class='tab_item' id='tab_demo'>
+						Demo
+					</span>
+					<span class='tab_item' id='tab_histogram'>
+						Lifetime Histogramm
+					</span>    
+					<span class='tab_item' id='tab_sarate'>
+						Aufbaurate
+					</span>  
+                    <span class='tab_item' id='tab_certificate'>
+						Zertifikate
+					</span>                                        
+				</div>                                            
+				
+                <!-- <div class="barcontainer" id="sapercentage"></div> -->
+
+				<div class='slide_content'>						
+					<div class='tabslider'>
+						<div class='tabcontent'>
+								<img src="img/testBedNet.png" id="testbed"/>
+						</div>
+						<div class='tabcontent'>
+							<table>
+								<tr>
+									<td style="padding-bottom: 10px">Lebensdauer der Sicherheitsbeziehungen</td>
+									<td style="padding-bottom: 10px">Anzahl der Sicherheitsbeziehungen</td>
+								</tr><tr>
+									<td align="center"><div id="lifetimemap"></div></td>
+									<td align="center"><div class="leftchart" id="specount"></div></td>
+								</tr>
+								<tr>
+									<td colspan="2">Durchschnittliche Anzahl an Sicherheitsbeziehungen<div class="timeline" id="speTimeline"></div><div style="margin-top: -20px" id="speslider"></div></td>
+								</tr>
+							</table>
+						</div>
+						<div class='tabcontent'>
+							<table>
+				                <tr><td>Gesendete Daten (in KB/s)</td><td>Empfangene Daten (in KB/s)</td></tr>
+				                <tr>
+				                    <td><div class="rightchart" id="tx"></div></td>
+				                    <td><div class="leftchart" id="rx"></div></td>
+				                </tr>
+				                <tr>
+				                	<td colspan=2 style="padding-top: 10px">
+				                		Mittlerer Datendurchsatz (in KB/s)
+				                		<div class="timeline" id="rxTimeline">
+				                	</td>
+				                </tr>
+				            </table>
+						</div>
+						<div class='tabcontent'>
+							<table>
+				                <tr>
+				                	<td style="padding-left: 85px">CPU Auslastung (in %)</td>
+				                	<td style="padding-left: 15px">Freier Arbeitsspeicher (in MB)</td>
+				                	<td style="padding-left: 15px">Temperatur (in °C)</td>
+				                </tr>
+				                <tr>
+				                    <td style="padding-left: 10px; padding-right: 10px"><div class="rightchart" id="load"></div></td>
+				                    <td style="padding-left: 10px; padding-right: 10px"><div class="rightchart" id="freemem"></div></td>
+				                    <td style="padding-left: 10px; padding-right: 10px"><div class="rightchart" id="temp"></div></td>
+				                </tr>
+				                <tr>
+				                	<td colspan=3 style="padding-top: 10px">
+				                		Durchschnittliche Temperatur der letzten <div style="display: inline" id="tempTimelineTitle">200 min</div> (in °C)
+				                		<div class="timeline" id="tempTimeline"></div>
+										<div style="margin-top: -20px" id="tempslider"></div>
+									</td>
+				                </tr>
+				            </table>
+							
+						</div>
+						<div class='tabcontent'>
+							<table>
+								<tr>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Verbindungsverzögerung</td>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Paketverlust</td>
+								</tr>
+								<tr>
+									<td><div id="delaymap"></div></td>
+									<td><div id="dropratemap"></div></td>
+								</tr>
+							</table>
+						</div>
+						<div class='tabcontent'>
+							<center>
+							<table class="demo" style="margin-top: 50px">
+								<tr width="100%">
+									<td style="padding: 0px 0px 20px 10px" class="heading">Verbindungen zum Cluster</td>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Verbindungen zu qcopter</td>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Anzahl der Sicherheitsbeziehungen</td>
+								</tr>
+								<tr>
+									<td><div id="clusterconnections"></div></td>
+									<td><div id="nodeconnections"></div></td>
+									<td align="center"><div class="leftchart" id="demospecount"></div></td>
+								</tr>
+								<!---<tr>
+									<td><div id="clustertime" class="timer">0.0 s</div></td>
+									<td><div id="nodetime" class="timer">0.0 s</div></td>
+								</tr>-->
+							</table>
+							</center>
+						</div>
+						<div class='tabcontent'>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <span>Histogramm der Verbindungslebensdauer der letzten&nbsp;</span>
+                                    </td>
+                                    <td>
+                                        <select id="hourselect">
+                                            <option value="1" class="option">Stunde</option>
+                                            <option value="3" class="option">3 Stunden</option>
+                                            <option value="5" class="option">5 Stunden</option>
+                                            <option value="10" class="option">10 Stunden</option>                                
+                                            <option value="24" selected="selected" class="option">24 Stunden</option>
+                                            <option value="48" class="option">48 Stunden</option>
+                                            <option value="72" class="option">72 Stunden</option>
+                                        </select>
+                                    </td>
+                                </tr>                            
+                            </table>					   
+							<div id="histogram"></div>
+                            <div id="histoslider"></div>
+						</div>	
+						<div class='tabcontent'>
+							<table>
+								<tr>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Neuaushandlungen pro Tag</td>
+								</tr>
+								<tr>
+									<td><div id="saratemap"></div></td>
+								</tr>
+							</table>
+						</div>
+
+                        <div class='tabcontent'>
+                            <table>
+                                <tr>
+                                    <td style="padding: 0px 0px 20px 10px" class="heading">Zertifikate</td>                        
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div id="certlist">
+                                            <table id="certtable" width = "100%">
+                                                <thead class="fixedHeader">
+                                                    <tr>
+                                                        <!--<th width="30%">Name</th>
+                                                        <th width="50%">gültig bis</th>
+                                                        <th width="5%">Hash</th>
+                                                        <th width="15%"><div class= "bounds"></div></th>-->
+                                                        <th class = 'name'>Name</th>
+                                                        <th class = 'source'>Quelle</th>
+                                                        <th class = 'expires'>gültig bis</th>
+                                                        <th class = 'hash'>Hash</th>
+                                                        <th class= "status"></th>
+                                                    </tr>
+                                                </thead>                                                
+                                            </table>    
+                                            <button name="submit" type="button">Übernehmen</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+											
+					</div>
+
+				</div>
+
+                        
+
+			</div>
+			
+			
+		</div>
+			
+	</body>
+</html>

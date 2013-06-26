@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <script type='text/javascript' src='lib/jquery.js'></script>
+        <script src="VivaGraphJS/dist/vivagraph.js"></script>
+        <script type='text/javascript'>
+        
+            /*global Viva, $*/
+            
+            
+var directGraph = Viva.Graph.graph();
+var networkData = null;
+
+function onLoad() {
+    poll();
+}
+
+function poll() {
+    var timeout = 100000;
+    var directRenderer = Viva.Graph.View.renderer(directGraph);
+    directRenderer.run();
+    setInterval(function () {
+        $.get("getVal.php", {
+            heatmap: ["SAtype"]
+        },
+
+        function (data) {
+            var str = JSON.stringify(data["SAtype"]);
+            if (str.localeCompare(networkData) != 0) {
+                console.log("Original: "+networkData+"\n");
+                networkData = new String(str);
+                directGraph.forEachNode(function(node){directGraph.removeNode(node);});
+                console.log("New: "+str+"\n");
+                createGraph(data);
+            }
+        }, "json");
+    }, timeout);
+}
+
+function createGraph(data) {
+
+    
+    console.log("Graph Updated\n");
+    var nodeNames = data["heatmaptics"].nodes;
+
+    for (var i in data["SAtype"]) {
+        if (directGraph.getNode(i) == false) directGraph.addNode(i, {
+            i: data["heatmaptics"].nodes[i]
+        });
+        for (var j in data["SAtype"][i]) {
+            var oldLink = directGraph.hasLink(i, j) || directGraph.hasLink(j, i);
+            if (oldLink) continue;
+            if (directGraph.getNode(j) == false) directGraph.addNode(j, nodeNames[j]);
+            var link = null;
+            if (data["SAtype"][i][j] == 2) directGraph.addLink(i, j, link);
+            //else link = "indirect";
+
+   
+        }
+    }
+}
+
+
+     	
+     </script>          
+    </head>
+    <body onload="onLoad()" style='width:100%; height: 100%; position : center'>
+        <div style='width:100%; height:100%; position:center;'>
+            <div id='graph1'>
+            
+            </div>
+        </div>
+    </body>
+</html>
