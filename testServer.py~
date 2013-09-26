@@ -1,0 +1,224 @@
+import socket
+import ssl
+import tornado.httpserver
+import tornado.websocket
+import tornado.ioloop
+import tornado.web
+import threading
+
+websockets = []
+
+class WSHandler(tornado.websocket.WebSocketHandler):
+
+	  
+  def readData(self):
+    while True:
+        line = self.ssl_sock.read()
+    	edge='<edge'
+    	vertex='<vertex'
+    	SAtype='type="2"'
+    
+    	resultObject=[]
+    	toSend=False
+    
+    	if(vertex in line):
+        
+        	toSend=True
+        	resultObject.append('{"type":')
+        	resultObject.append('"vertex", ')
+        	resultObject.append('"event":')
+        
+        	if 'event="add"' in line:
+            	    resultObject.append('"add", ')
+        	else:
+            	    resultObject.append('"remove", ')
+            
+                resultObject.append('"id":')
+        	start=line.find('id="')+4
+        	end=line.find('" timestamp')
+        	resultObject.append(line[start:end])
+        
+        	resultObject.append(', "name":')
+        	start=line.find('hostname="')+9
+        	end=line.find('" uptime')+1
+        	resultObject.append(line[start:end])
+        	
+        	stats_line=self.ssl_sock.read()
+        	
+        	if('"add", ' in resultObject and 'hwstats' in stats_line):
+				
+				resultObject.append(', "details":{"temp":')
+				start=stats_line.find('temperature="')+13
+				end=stats_line.find('" ',start)
+				resultObject.append(stats_line[start:end])
+				
+				resultObject.append(', "cpu":')
+				start=stats_line.find('" cpuLoad="')+11
+				end=stats_line.find('" ',start)
+				resultObject.append(stats_line[start:end])
+				
+				resultObject.append(', "memory":')
+				start=stats_line.find('freeMem="')+9
+				end=stats_line.find('" ',start)
+				resultObject.append(stats_line[start:end])
+				
+				resultObject.append('}}')
+				
+				
+				#IF LENGTH IS 0 THEN APPEND DIRECTLY
+				
+				for i in range(len(self.nodes)):
+					if ((resultObject[5]==self.nodes[i][5]) and (resultObject!=self.nodes[i])):
+						self.nodes.pop(i)
+						self.nodes.append(resultObject)
+						resultObject[3]='"update", '
+						print('Updated: '+resultObject)
+					elif i==len(self.nodes)-1:
+						self.nodes.append(resultObject)
+						print('Appended: '+resultObject)
+					
+				if len(self.nodes)==0:
+					self.nodes.append(resultObject)
+			
+			
+		elif('"remove", ' in resultObject):
+				
+				for i in range(len(self.nodes)):
+					if ((resultObject[5]==self.nodes[i][5])):
+						print ('Popped:'+self.nodes.pop(i))
+						break
+				
+				for i in range(len(self.edges)):
+					if((resultObject[5]==self.edges[i][5]) or (resultObject[5]==self.edges[i][7])):
+						print ('Popped:'+self.edges.pop(i))
+
+        
+    	elif(edge in line and SAtype in line):
+        
+        	toSend=True
+        	resultObject.append('{"type":')
+        	resultObject.append('"edge", ')
+        	resultObject.append('"event":')
+        
+        	if 'event="add"' in line:
+            	    resultObject.append('"add", ')
+        	else:
+            	    resultObject.append('"remove", ')
+            
+        	start=line.find('from="')+6
+    		end=line.find('" to="')
+    		resultObject.append('"from":')
+    		resultObject.append((line[start:end]))
+	        
+    		start=end+6
+    		end=line.find('" timestamp')
+    		resultObject.append(', "to":')
+    		resultObject.append(line[start:end])
+		   	
+		   	# DETAILS ONLY IF EVENT IS ADD LINK
+		   	
+		resultObject.append(', "details":{"delay":')
+    		start=line.find('" delay="')+9
+    		end=(line.find('"',start))
+    		resultObject.append(line[start:end])
+    		
+    		resultObject.append(', "jitter":')
+    		start=line.find('" jitter="')+10
+    		end=(line.find('"',start))
+    		resultObject.append(line[start:end])
+    		
+    		resultObject.append(', "dropRate":')
+    		start=line.find('dropRate="')+10
+    		end=line.find('"',start)
+    		resultObject.append(line[start:end])
+    		
+    		resultObject.append(', "linkQuality":')
+    		start=line.find('linkQuality="')+13
+    		end=line.find('"',start)
+    		resultObject.append(line[start:end])
+    		
+    		resultObject.append(', "establishedFor":')
+    		start=line.find('establishedFor="')+16
+    		end=line.find('"',start)
+    		resultObject.append(line[start:end])
+    		
+    		resultObject.append(', "establishRate":')
+    		start=line.find('establishRate="')+15
+    		end=line.find('"',start)
+    		resultObject.append(line[start:end])
+    		
+    		resultObject.append('}}')
+        	
+        	
+        	#IF LENGTH IS 0 THEN APPEND DIRECTLY
+        	
+        	for i in self.edges:
+				print("inside for")
+				if(resultObject[0:8]==i[0:8] and resultObject!=i ):
+					i=resultObject
+					resultObject[3]='"update",'
+					print ("updated")
+					break
+				elif (i==len(self.edges)-1):
+					self.edges.append(resultObject)
+					print("appended")
+#		if i==len(self.edges): self.edges.append(resultObject)
+		#print("outside for")
+    	
+    	
+    	if(toSend):
+    		
+        	resultObject=''.join(resultObject)
+        	#print ("Sending Data: "+ resultObject )
+        	
+        	self.write_message(resultObject)
+  
+  
+#  def sendData(self,message,toSend):
+#	  if(toSend==True):
+#		  resultObject=''.join( resultObject )
+#		  self.write_message
+  
+  def makeConnection(self):
+	  self.ssl_sock.connect(self.address)
+	  self.readData()
+  
+
+
+  def open(self):
+    print 'New connection was opened'
+    self.s=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    self.ssl_sock=ssl.wrap_socket(self.s, cert_reqs=ssl.CERT_NONE)
+    self.address=('jane',5000)
+    self.nodes=[]
+    self.edges=[]
+    if self not in websockets:
+		print ('added')
+		websockets.append(self)
+           
+    if(len(websockets)==1):
+		print('executing make conn')
+		self.makeConnection()
+    else:
+		
+	self.readData()
+	print('executing read data')
+
+        
+  def on_message(self, message):
+    print 'Incoming message:', message
+    self.write_message("You said: " + message)
+
+  def on_close(self):
+    print 'Connection was closed...'
+    
+
+application = tornado.web.Application([
+  (r'/ws', WSHandler),
+])
+
+if __name__ == "__main__":
+  
+  http_server = tornado.httpserver.HTTPServer(application)
+  http_server.listen(8888)
+  tornado.ioloop.IOLoop.instance().start()

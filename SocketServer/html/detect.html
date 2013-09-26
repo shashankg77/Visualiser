@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<title> SOLID Graph</title>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <script type='text/javascript' src='lib/jquery.js'></script>
+        <script src="VivaGraphJS/dist/vivagraph.js"></script>
+        <script type='text/javascript'>
+        
+            /*global Viva, $*/
+            
+
+function onLoad() {
+    var graph = Viva.Graph.graph();
+    var colors = [
+        "#1f77b4", "#aec7e8",
+        "#ff7f0e", "#ffbb78",
+        "#2ca02c", "#98df8a",
+        "#d62728", "#ff9896",
+        "#9467bd", "#c5b0d5",
+        "#c49c94",
+        "#e377c2", "#f7b6d2",
+        "#c7c7c7",
+        "#bcbd22", "#dbdb8d",
+        "#17becf", "#9edae5"];
+    var cssGraphics = Viva.Graph.View.cssGraphics();
+
+    cssGraphics.node(function (node) {
+        var nodeUI = document.createElement('div');
+        nodeUI.setAttribute('class', 'node');
+        nodeUI.title = node.data.name;
+        nodeUI.style.background = colors[Math.floor(Math.random() * 19)];
+        return nodeUI;
+    });
+
+    var svgGraphics = Viva.Graph.View.svgGraphics();
+    var highlightRelatedNodes = function (nodeId, isOn) {
+        graph.forEachLinkedNode(nodeId, function (node, link) {
+            if (link && link.ui) {
+                link.ui.attr('stroke', isOn ? 'red' : 'gray');
+            }
+        });
+    };
+
+    svgGraphics.node(function (node) {
+
+        var appearance = Viva.Graph.svg('g');
+        var svgText = Viva.Graph.svg('text')
+            .attr('y', '-0.5px')
+            .attr('x', '-1.5px')
+            .attr('font-size', '11')
+            .text(node.id);
+
+        var circle = Viva.Graph.svg('circle')
+            .attr('r', 10)
+            .attr('stroke', '#fff')
+            .attr('stroke-width', '1.5px')
+            .attr("fill", colors[Math.floor(Math.random() * 19)]);
+        circle.append('title').text(JSON.stringify(node.data));
+
+        appearance.append(circle);
+        appearance.append(svgText);
+
+        $(appearance).hover(function () { // mouse over
+            highlightRelatedNodes(node.id, true);
+        }, function () { // mouse out
+            highlightRelatedNodes(node.id, false);
+        });
+
+        return appearance;
+
+    }).placeNode(function (nodeUI, pos) {
+        nodeUI.attr('transform',
+            'translate(' + (pos.x) + ',' + (pos.y) +
+            ')');
+    });
+
+    svgGraphics.link(function (link) {
+        var line = Viva.Graph.svg('line')
+						.attr('stroke', 'gray');
+			line.append('title').text(JSON.stringify(link.data));	
+			
+		return line;
+    });
+
+
+    var layout = Viva.Graph.Layout.forceDirected(graph, {
+        springLength: 33,
+        springCoeff: 0.0008,
+        dragCoeff: 0.009,
+        gravity: -1.2
+    });
+
+    var connection = new WebSocket('ws://localhost:8888/feed');
+    connection.onopen = function () {
+        var renderer = Viva.Graph.View.renderer(graph, {
+            container: document.getElementById('graph'),
+            graphics: svgGraphics,
+            renderLinks: true,
+            layout: layout
+        });
+
+        renderer.run();
+        console.log("Connected!");
+    };
+    connection.onmessage = function (receivedData) {
+        try {
+            var data = JSON.parse(receivedData.data);
+            if (data.type == "vertex") {
+                if (data.event == "add") {
+                    if (graph.getNode(data.id) === undefined) {
+                        console.log("Adding Node " + data.id);
+                        graph.addNode(data.id);
+                    }
+
+                } else if (data.event == "remove") {
+                    if (graph.getNode(data.id) !== undefined) {
+                        console.log("Removing Node " + data.id);
+                        graph.removeNode(data.id);
+                    } else console.log("Node " + data.id + " not present");
+                } else if (data.event == "update") {
+                    graph.forEachNode(function (node) {
+                        if (node.id == data.id) {
+                            node.data = data.details;
+                        }
+                    });
+                }
+            } else if (data.type == "edge") {
+                var checkOldLink = (graph.hasLink(data.from, data.to) || graph.hasLink(data.to, data.from));
+                if (data.event == "add") {
+                    if (!checkOldLink) {
+                        console.log("Adding Link " + data.from + "  " + data.to);
+                        graph.addLink(data.from, data.to, data.details);
+                    }
+                } else if (data.event == "update") {
+                    if (checkOldLink) {
+                        if (checkOldLink) {
+                            graph.forEachLink(function (link) {
+                                if (link == checkOldLink) {
+                                    link.data = data.details;
+                                    console.log('Sending');
+                                    connection.send('hi there')
+                                }
+                            });
+                        }
+                    }
+                } else {
+                    if (checkOldLink) {
+                        console.log("Removing Link " + data.from + "  " + data.to);
+                        graph.removeLink(graph.hasLink(data.from, data.to));
+                        connection.send('hi there')
+                    }
+                }
+            } else console.log("Error in data");
+        } catch (e) {
+            console.log(e.message);
+            console.log(receivedData);
+        }
+    };
+}
+     	
+     </script>   
+     <style type='text/css'>
+            .node {
+                background-color: #00a2e8;
+                width: 10px;
+                height: 10px;
+                position: absolute;
+            }
+            .link {
+                background-color: #999;
+                position: absolute;
+            }
+            
+            #graph{
+                position: absolute;
+                vertical-align:middle;
+                width: 100%;
+                height: 100%;
+            }
+            #graph > svg {
+                width: 100%;
+                height: 100%; 
+            }
+        </style>       
+    </head>
+    <body onload="onLoad()" style='width:100%; height: 100%; position : center'>
+        <div style='width:100%; height:100%; position:center;'>
+            <div id='graph'>
+            </div>
+        </div>
+    </body>
+</html>

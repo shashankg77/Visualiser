@@ -1,6 +1,32 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 	<head>
+		
+		<style type='text/css'>
+            .node {
+                background-color: #000000;
+                width: 10px;
+                height: 10px;
+                position: absolute;
+            }
+            .link {
+                background-color: #000000;
+                position: absolute;
+            }
+            
+            #graph{
+                position: absolute;
+                vertical-align:middle;
+                width: 100%;
+                height: 100%;
+            }
+            #graph > svg {
+                width: 100%;
+                height: 100%; 
+            }
+        </style>
+		
+		
 		<title>SOLID</title>
 		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
 		
@@ -9,11 +35,14 @@
 		<script type='text/javascript' src='lib/jquery.color.js'></script>
 		<script type="text/javascript" src="lib/jquery.flot.js"></script>
 		<script type="text/javascript" src="lib/jquery.flot.resize.js"></script>
-        <script type="text/javascript" src="lib/jquery.selectbox-0.2.min.js"></script>
+        	<script type="text/javascript" src="lib/jquery.selectbox-0.2.min.js"></script>
 		<script type="text/javascript" src="js/tab.js"></script>
 		<script type="text/javascript" src="js/chartcreator.js"></script>
 		<script type="text/javascript" src="js/heatmap.js"></script>
+		<script type='text/javascript' src="js/graph.js"></script>
 		<script type="text/javascript" src="webvis.js"></script>
+		<script type='text/javascript' src="VivaGraphJS/dist/vivagraph.js"></script>
+		
 		<link href='css/style.css' rel='stylesheet' type='text/css' />
 		<link href='css/heatmap.css' rel='stylesheet' type='text/css' />
         <link href='css/jquery.selectbox.css' rel='stylesheet' type='text/css' />
@@ -56,6 +85,9 @@
 					</span>
         	        <span class='tab_item' id='tab_certificate'>
 						Certificates
+					</span>
+					<span class='tab_item' id='tab_graph'>
+						Network Graph
 					</span>
 				</div>                                            
 				
@@ -225,8 +257,16 @@
                                 </tr>
                             </table>
                         </div>				
-
-											
+						<div class='tabcontent'>
+							<div style='width:100%; height:100%; position:center;'>
+							<div id='buttons' align="top">
+								<input type="radio" name="group1" onclick="loadGraph('direct')" value="direct"> Direct Edges<br>
+								<input type="radio" name="group1" onclick="loadGraph('indirect')" value="indirect"> Indirect Edges<br>
+								<hr>
+							</div>
+							<div id='graph' align='center' >
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="width=device-width, user-scalable=no">
+        <script type='text/javascript' src='lib/jquery.js'></script>
+        <script src="VivaGraphJS/dist/vivagraph.js"></script>
+        <script type='text/javascript'>
+        
+            /*global Viva, $*/
+            
+
+function onLoad() {
+    var connection = new WebSocket('ws://localhost:8888/ws');
+    var graph = Viva.Graph.graph();
+    connection.onopen = function () {
+        console.log("Connected!");
+        var layout = Viva.Graph.Layout.forceDirected(graph, {
+            springLength: 35,
+            springCoeff: 0.00055,
+            dragCoeff: 0.09,
+            gravity: -1
+        });
+        var svgGraphics = Viva.Graph.View.svgGraphics();
+        svgGraphics.node(function (node) {}).placeNode(function (nodeUI, pos) {
+            nodeUI.attr("cx", pos.x).attr("cy", pos.y);
+        });
+        var renderer = Viva.Graph.View.renderer(graph, {
+            layout: layout,
+            graphics: svgGraphics,
+            prerender: 0,
+            renderLinks: true
+        });
+        renderer.run();
+    };
+
+    connection.onmessage = function (receivedData) {
+        var data = JSON.parse(receivedData.data);
+        if (data.type == "vertex") {
+            if (data.event == "add") graph.addNode(data.id, data.name);
+            else graph.removeNode(data.id);
+        } else if (data.type == "edge") {
+            if (data.event == "add") graph.addLink(data.from, data.to);
+            else graph.removeLink(graph.hasLink(data.from, data.to));
+        } else console.log("Error in data");
+    };
+
+}
+     	
+     </script>          
+    </head>
+    <body onload="onLoad()" style='width:100%; height: 100%; position : center'>
+        <div style='width:100%; height:100%; position:center;'>
+            <div id='graph1'>
+            
+            </div>
+        </div>
+    </body>
+</html>

@@ -1,1 +1,278 @@
-index_en.html
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+	<head>
+		
+		<style type='text/css'>
+            .node {
+                background-color: #000000;
+                width: 10px;
+                height: 10px;
+                position: absolute;
+            }
+            .link {
+                background-color: #000000;
+                position: absolute;
+            }
+            
+            #graph{
+                position: absolute;
+                vertical-align:middle;
+                width: 100%;
+                height: 100%;
+            }
+            #graph > svg {
+                width: 100%;
+                height: 100%; 
+            }
+        </style>
+		
+		
+		<title>SOLID</title>
+		<meta http-equiv='Content-Type' content='text/html; charset=utf-8' />
+		
+		<script type='text/javascript' src='lib/jquery.js'></script>
+		<script type='text/javascript' src='lib/jquery-ui.js'></script>
+		<script type='text/javascript' src='lib/jquery.color.js'></script>
+		<script type="text/javascript" src="lib/jquery.flot.js"></script>
+		<script type="text/javascript" src="lib/jquery.flot.resize.js"></script>
+        	<script type="text/javascript" src="lib/jquery.selectbox-0.2.min.js"></script>
+		<script type="text/javascript" src="js/tab.js"></script>
+		<script type="text/javascript" src="js/chartcreator.js"></script>
+		<script type="text/javascript" src="js/heatmap.js"></script>
+		<script type='text/javascript' src="js/graph.js"></script>
+		<script type="text/javascript" src="webvis.js"></script>
+		<script type='text/javascript' src="VivaGraphJS/dist/vivagraph.js"></script>
+		
+		<link href='css/style.css' rel='stylesheet' type='text/css' />
+		<link href='css/heatmap.css' rel='stylesheet' type='text/css' />
+        <link href='css/jquery.selectbox.css' rel='stylesheet' type='text/css' />
+        <link href='css/jquery.slider.css' rel='stylesheet' type='text/css' />
+	</head>
+	
+	<body>
+		<div class='content'>			   
+			<div class='tabbed_content'>
+				<div class='tabs'>
+					<div class='moving_bg'>
+						&nbsp;
+					</div>					
+					<span class='tab_item' id='tab_topology'>
+						Topology
+					</span>
+                    <span class='tab_item' id='tab_arch'>
+                        Management Architecture
+                    </span>
+					<span class='tab_item' id='tab_spestats'>
+						Security Associations
+					</span>
+					<span class='tab_item' id='tab_traffic'>
+						Network Utilization
+					</span>
+					<span class='tab_item' id='tab_health'>
+						Testbed Health
+					</span>
+					<span class='tab_item' id='tab_quality'>
+						Quality of Service
+					</span>
+					<span class='tab_item' id='tab_demo'>
+						Load Balancing
+					</span>
+					<span class='tab_item' id='tab_histogram'>
+						Lifetime Histogram
+					</span>    
+					<span class='tab_item' id='tab_sarate'>
+						Reestablish Rate
+					</span>
+        	        <span class='tab_item' id='tab_certificate'>
+						Certificates
+					</span>
+					<span class='tab_item' id='tab_graph'>
+						Network Graph
+					</span>
+				</div>                                            
+				
+                <div class="nodeselector">
+                    <select id="nodes">
+                        <option value="0" class="option">All nodes</option>
+                        <option value="1" class="option">Ilmenau nodes</option>
+                        <option value="2" class="option">Direct nodes</option>
+                        <option value="3" class="option">Small boxes</option>
+                        <option value="4" class="option">VMs (selection)</option>
+                    </select>
+                </div>
+
+                <!--<div class="barcontainer" id="sapercentage"></div>-->
+
+				<div class='slide_content'>						
+					<div class='tabslider'>
+						<div class='tabcontent'>
+								<!--<div style="font-size: 40pt"><b>S</b>ecure <b>O</b>ver<b>L</b>ay for <b>I</b>Psec <b>D</b>iscovery - <b>SOLID</b></div>-->
+								<img src="img/testBedNet.png" id="testbed" class="fullimage"/>
+						</div>
+                        <div class='tabcontent'>
+                            <img src="img/management.png" class="fullimage" />
+                        </div>
+						<div class='tabcontent'>
+							<table>
+								<tr>
+									<td style="padding-bottom: 10px">Security association lifetime</td>
+									<td style="padding-bottom: 10px">Number of security associations</td>
+								</tr><tr>
+									<td align="center"><div id="lifetimemap"></div></td>
+									<td align="center"><div class="leftchart" id="specount"></div></td>
+								</tr>
+								<tr>
+									<td colspan="2">Average number of security associations<div class="timeline" id="speTimeline"></div><div style="margin-top: -20px" id="speslider"></div></td>
+								</tr>
+							</table>
+						</div>
+						<div class='tabcontent'>
+							<table>
+				                <tr><td>Transmitted data (in KB/s)</td><td>Received data (in KB/s)</td></tr>
+				                <tr>
+				                    <td><div class="rightchart" id="tx"></div></td>
+				                    <td><div class="leftchart" id="rx"></div></td>
+				                </tr>
+				                <tr>
+				                	<td colspan=2 style="padding-top: 10px">
+				                		Average throughput (in KB/s)
+				                		<div class="timeline" id="rxTimeline">
+				                	</td>
+				                </tr>
+				            </table>
+						</div>
+						<div class='tabcontent'>
+							<table>
+				                <tr>
+				                	<td style="padding-left: 85px">CPU utilization (in %)</td>
+				                	<td style="padding-left: 15px">Free memory (in MB)</td>
+				                	<td style="padding-left: 15px">Temperature (in °C)</td>
+				                </tr>
+				                <tr>
+				                    <td style="padding-left: 10px; padding-right: 10px"><div class="rightchart" id="load"></div></td>
+				                    <td style="padding-left: 10px; padding-right: 10px"><div class="rightchart" id="freemem"></div></td>
+				                    <td style="padding-left: 10px; padding-right: 10px"><div class="rightchart" id="temp"></div></td>
+				                </tr>
+				                <tr>
+				                	<td colspan=3 style="padding-top: 10px">
+				                		Average temperature over the last <div style="display: inline" id="tempTimelineTitle">200 min</div> (in °C)
+				                		<div class="timeline" id="tempTimeline"></div>
+										<div style="margin-top: -20px" id="tempslider"></div>
+									</td>
+				                </tr>
+				            </table>
+							
+						</div>
+						<div class='tabcontent'>
+							<table>
+								<tr>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Delay</td>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Droprate</td>
+								</tr>
+								<tr>
+									<td><div id="delaymap"></div></td>
+									<td><div id="dropratemap"></div></td>
+								</tr>
+							</table>
+						</div>
+						<div class='tabcontent'>
+							<center>
+							<table class="demo" style="margin-top: 50px">
+								<tr width="100%">
+									<td style="padding: 0px 0px 20px 10px" class="heading"># Connections to cluster<br>(with load balancing)</td>
+									<td style="padding: 0px 0px 20px 10px" class="heading"># Connections to qcopter<br>(without load balancing)</td>
+								</tr>
+								<tr>
+									<td><div id="clusterconnections"></div></td>
+									<td><div id="nodeconnections"></div></td>
+									<td align="center"><div class="leftchart" id="demospecount"></div></td>
+								</tr>
+								<!---<tr>
+									<td><div id="clustertime" class="timer">0.0 s</div></td>
+									<td><div id="nodetime" class="timer">0.0 s</div></td>
+								</tr>-->
+							</table>
+							</center>
+						</div>
+						<div class='tabcontent'>
+                            <table>
+                                <tr>
+                                    <td>
+                                        <span>SA lifetime histogram over the last &nbsp;</span>
+                                    </td>
+                                    <td>
+                                        <select id="hourselect">
+                                            <option value="1" class="option">hour</option>
+                                            <option value="3" class="option">3 hours</option>
+                                            <option value="5" class="option">5 hours</option>
+                                            <option value="10" class="option">10 hours</option>                                
+                                            <option value="24" selected="selected" class="option">day</option>
+                                            <option value="48" class="option">2 days</option>
+                                            <option value="72" class="option">3 days</option>
+                                        </select>
+                                    </td>
+                                </tr>                            
+                            </table>					   
+							<div id="histogram"></div>
+                            <div id="histoslider"></div>
+						</div>	
+						<div class='tabcontent'>
+							<table>
+								<tr>
+									<td style="padding: 0px 0px 20px 10px" class="heading">Reestablishments per day</td>
+								</tr>
+								<tr>
+									<td><div id="saratemap"></div></td>
+								</tr>
+							</table>
+						</div>             
+                        <div class='tabcontent'>
+                            <table>
+                                <tr>
+                                    <td class="heading">Certificates</td>                        
+                                </tr>
+                                <tr>
+                                    <td>
+                                    	<div id="certlist">
+                                            <table id="certtable" width = "100%">
+                                                <thead class="fixedHeader">
+                                                    <tr>
+                                                        <!--<th width="30%">Name</th>
+                                                        <th width="50%">gültig bis</th>
+                                                        <th width="5%">Hash</th>
+                                                        <th width="15%"><div class= "bounds"></div></th>-->
+                                                        <th class = 'name'>Name</th>
+                                                        <th class = 'source'>Source</th>
+                                                        <th class = 'expires'>Expiry Date</th>
+                                                        <th class = 'hash'>Hash</th>
+                                                        <th class= "status"></th>
+                                                    </tr>
+                                                    <tbody class="scrollContent">
+                                                    </tbody>
+                                                </thead>                                                
+                                            </table>
+                                            <button name="submit" type="button">Submit</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>				
+						<div class='tabcontent'>
+							<div style='width:100%; height:100%; position:center;'>
+							<div id='buttons' align="top">
+								<input type="radio" name="group1" onclick="loadGraph('direct')" value="direct"> Direct Edges<br>
+								<input type="radio" name="group1" onclick="loadGraph('indirect')" value="indirect"> Indirect Edges<br>
+								<hr>
+							</div>
+							<div id='graph' align='center' >
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			
+		</div>
+			
+	</body>
+</html>

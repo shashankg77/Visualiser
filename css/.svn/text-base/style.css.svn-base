@@ -1,0 +1,208 @@
+body {
+	background-color: #333333;
+	font-family:"Helvetica", sans-serif;
+}
+
+.tabbed_content {
+	position: relative;     
+}
+
+.tabs {
+	width: 250px;
+	position: absolute;
+	background-color: #1d1d1d;
+	float: left;
+}
+
+.barcontainer {  
+    position: absolute;
+    top: 550px;
+    left: 85px;
+    width: 75px;
+}
+
+.nodeselector {  
+    position: absolute;
+    top: 510px;
+    left: 15px;
+}
+
+.nodeselector .sbHolder, .nodeselector .sbOptions {
+    width: 220px;
+}
+
+.tabs .moving_bg {
+	padding: 15px;
+	background-color:#111111;
+	position: absolute;
+	width: 100%;
+}
+
+.tabs #tab_topology {
+	color: #2368ae;
+}
+
+.tabs .tab_item {
+	display: block;
+	float: none;
+	padding: 15px 0px 15px 0px;
+	width: 100%;
+	color: #5c7084;
+	text-align: center;
+	position: relative;
+	cursor: pointer;
+	z-index: 1;
+}
+
+.slide_content {
+	overflow: hidden;
+	background-color: #111111;
+	color: #ffffff;
+	position: fixed;
+	margin-left: 270px;
+	margin-right: 10px;
+	margin-bottom: 10px;
+	/*width: 1000px;  /* changeme */
+	#width: 100%;
+	#height: 700px; /* changeme */
+}
+
+.tabslider {
+	#width: 5000px;
+}
+
+.tabslider .tabcontent {
+	#width: 960px;  /* changeme */
+	#height: 660px; /* changeme */
+	padding: 20px 20px 20px 20px;
+}
+
+.leftchart .tickLabel { 
+    width: 70px; 
+}
+
+.timeline {
+	margin-top: 20px;
+	margin-bottom: 40px;
+}
+
+#testbed {
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.demo .timer {
+	font-size: 24pt;
+}
+
+.demo td {
+	padding: 10px 20px 20px 20px;
+	vertical-align: top;
+}
+
+.heading {
+	font-size: 20px;	
+}
+
+#certtable
+{
+    font-family: "DejaVu Sans";
+    font-size: 14px;
+    background: #111111;
+    margin: 45px; 
+    margin-bottom: 30px;   
+    border-collapse: collapse;
+    text-align: left;  
+    width: 100%;
+}
+
+#certtable th
+{
+    font-size: 16px;
+    font-weight: normal;
+    color: #FFFFFF;
+    padding: 10px 8px;
+    border-bottom: 2px solid #5c7084;
+}
+#certtable td
+{
+    color: #FFFFFF;
+    padding: 6px 7px 3px 7px;
+}
+
+thead.fixedHeader tr {
+	position: relative;
+}
+
+html>body thead.fixedHeader tr {
+	display: block;
+}
+
+thead.fixedHeader th {		
+	font-weight: normal;
+	padding: 4px 3px;
+	text-align: left;
+
+}
+
+html>body tbody.scrollContent {
+	display: block;
+	height: 800px;
+	overflow: auto;
+}
+
+tbody.scrollContent tr:nth-of-type(even) {
+   background-color:#333333;
+ }
+
+.bounds {
+    margin:4px;
+    background-color:#404040;
+    border-radius:4px;
+    overflow:auto;
+    float:left;
+}
+
+.bounds label {
+    float:left;
+    width:2.0em; 
+}
+
+.bounds label span {
+    text-align:center;
+    padding:3px 0px;
+    display:block;
+}
+
+.bounds label input {
+    position:absolute;
+    top:-20px;
+}
+
+.bounds input:checked + span {
+     background-color:#5c7084;
+     color:#F7F7F7;
+}
+
+[name=submit] {
+    margin-left: 45px;
+}
+.name {
+    width: 159px;
+}
+
+.source {
+    width: 51px;
+}
+.expires {
+    width: 276px;
+}
+
+.hash {
+    width: 72px;
+}
+
+.status {
+    width: 82px;
+}
